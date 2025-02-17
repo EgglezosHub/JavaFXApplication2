@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javafxapplication2.ChatWindowController" spacing="10" styleClass="main-container">
+
+    <!-- Chat List Panel -->
+    <VBox prefWidth="250" styleClass="chat-list-panel">
+        <Label text="Contacts" styleClass="chat-list-header"/>
+        <!-- Add Username Section -->
+        <HBox spacing="5" styleClass="add-contact-panel">
+            <TextField fx:id="addContactField" promptText="Enter username" />
+            <Button text="Add" onAction="#handleAddContact" styleClass="add-contact-button"/>
+        </HBox>
+        
+        
+        
+        <ListView fx:id="chatListView" styleClass="chat-list"/>
+    </VBox>
+
+    <!-- Chat Main Panel -->
+    <VBox spacing="10" styleClass="chat-main-panel" HBox.hgrow="ALWAYS">
+        <!-- Chat Messages Section -->
+        <ScrollPane fx:id="chatScrollPane" fitToWidth="true" fitToHeight="true" styleClass="chat-display" VBox.vgrow="ALWAYS">
+            <VBox fx:id="chatMessagesContainer" spacing="10" styleClass="chat-messages"/>
+        </ScrollPane>
+
+        <!-- Message Input Section -->
+        <HBox spacing="10" styleClass="message-input-panel">
+            <TextField fx:id="messageInputField" promptText="Type your message..." styleClass="message-input"/>
+            <Button text="Send" onAction="#handleSendMessage" styleClass="send-button"/>
+        </HBox>
+    </VBox>
+</HBox>
