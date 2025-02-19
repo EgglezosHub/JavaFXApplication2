@@ -12,10 +12,11 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Scanner;
+
+import java.util.*;
+import java.util.regex.*;
 
 public class ChatWindowController {
     @FXML
@@ -74,37 +75,51 @@ public class ChatWindowController {
     }
     
     private void fetchContactsForUser() {
-        System.out.println("Fetching contacts for user: " + username);
-        //chatList.addAll("John Doe", "Jane Smith", "Alice Cooper", "Bob Marley");        
-        
+        System.out.println("Fetching contacts for user: " + username);        
         
         // Here you would make the backend call to get the user's contacts
         String response = showContacts("http://localhost:5000/ShowContacts", username);
-        //String response = "Success:Msritina;Jim;Mitsos33;Magkas";
         String[] stringarray = response.split(":");
-        String statusValue = stringarray[0];
-        String Contacts = stringarray[1];
-        String[] contactArray = Contacts.split(";");
-        System.out.println("Array: " + Arrays.toString(contactArray));
+        //System.out.println("HERE:\n1: " + stringarray[0] + "\n2: " + stringarray[1] + "\n2: " + stringarray[2]);
+        String statusValue = stringarray[2];        
         
-        /*
-        if (statusValue.equals("Success")){
-            //chatList = FXCollections.observableArrayList(contactArray);
-            for (String contact : contactArray) {
-                System.out.println(contact);
-                chatList.add(contact);
-            }
-        }*/
-        if (statusValue.equals("Success")){
-            for (int i =0; i<contactArray.length; i++){
-                chatList.add(contactArray[i]);
+        // Extract status inside double quotes
+        Pattern quotePattern1 = Pattern.compile("\"(.*?)\"");
+        Matcher quoteMatcher1 = quotePattern1.matcher(statusValue);
+        String status = quoteMatcher1.find() ? quoteMatcher1.group(1) : "";
+        // Print result
+        //System.out.println("statusValue: " + status);
+
+
+        // Extract contacts inside double quotes
+        String input = stringarray[1];
+        // Extract content inside brackets
+        Pattern bracketPattern = Pattern.compile("\\[(.*?)\\]");
+        Matcher bracketMatcher = bracketPattern.matcher(input);
+        String insideBrackets = bracketMatcher.find() ? bracketMatcher.group(1) : "";
+        // Extract words inside double quotes
+        Pattern quotePattern = Pattern.compile("\"(.*?)\"");
+        Matcher quoteMatcher = quotePattern.matcher(insideBrackets);
+        List<String> extractedList = new ArrayList<>();
+        while (quoteMatcher.find()) {
+            extractedList.add(quoteMatcher.group(1));
+        }
+        // Convert List to String Array
+        String[] Contacts = extractedList.toArray(new String[0]);
+        // Print result
+        //System.out.println(Arrays.toString(Contacts));
+        //System.out.println("Array: " + Arrays.toString(Contacts));
+        
+
+        if (status.equals("Success")){
+            boolean addAll = chatList.addAll(Arrays.asList(Contacts));
+            if (addAll == false){
+                System.out.println("Error: Can't put contacts on chatList");
             }
         }else{
-            System.out.println(Contacts); //represents the error message
+            System.out.println("Status: False"); //represents the error message
         }
-        System.out.println("ChatList: " + Arrays.toString(contactArray));
-
-        //chatList.addAll(contactArray);
+        //System.out.println("ChatList: " + Arrays.toString(Contacts));
         chatListView.setItems(chatList);
         //chatListView.setOnMouseClicked(event -> loadChat());
     }
@@ -114,8 +129,10 @@ public class ChatWindowController {
         if (selectedChat != null) {
             chatMessagesContainer.getChildren().clear();
             addMessage("Welcome to your chat with " + selectedChat, "system");
+        }else{
+            //Load Chats
         }
-    }
+    }  //After saving messages,build this
 
     @FXML
     private void handleSendMessage() {
@@ -194,7 +211,7 @@ public class ChatWindowController {
             }
             scanner.close();
 
-            System.out.println("Response from HTTP: " + response.toString());
+            //System.out.println("Response from HTTP: " + response.toString());
             return response.toString();
 
         } catch (Exception e) {
@@ -203,263 +220,6 @@ public class ChatWindowController {
         }
     }
 }
-/**/  /*
-package javafxapplication2;
-
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import java.time.LocalTime;
-import java.util.Scanner;
-
-public class ChatWindowController {
-    @FXML
-    private ListView<String> chatListView;
-    @FXML
-    private VBox chatMessagesContainer;
-    @FXML
-    private TextField messageInputField;
-    @FXML
-    private ScrollPane chatScrollPane;
-    @FXML
-    private TextField addContactField;
-
-    private final ObservableList<String> chatList;
-    //
-    private String username;
-
-    public ChatWindowController() {
-        this.chatList = FXCollections.observableArrayList();
-    }
-    
-    public void setUsername(String usernam) {
-        this.username = usernam;
-        
-        postInitialize();
-    }
-    
-    public String getUsername() {
-        return username;
-    }
-    
-    @FXML
-    public void initialize() {
-        
-        // Populate chat contacts
-            //----------------------------------------------------------------------------------------------
-            //Connect with Python and though Python connect with SQL database to get all the info
-            //In this scenario we take all the contacts that the use has
-            //----------------------------------------------------------------------------------------------
-        // Initialize components unrelated to username
-        messageInputField.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ENTER) {
-                handleSendMessage();
-            }
-        });
-        addContactField.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ENTER) {
-                handleAddContact();
-            }
-        });
-        chatListView.setOnMouseClicked(event -> loadChat());
-    }
-    
-    // Custom method for username-dependent initialization
-    private void postInitialize() {
-        if (username != null) {
-            System.out.println("Initializing with username: " + username);
-
-            // Simulate fetching data from the backend
-            fetchContactsForUser();
-        }
-    }
-    
-    private void fetchContactsForUser() {
-        System.out.println("Fetching contacts for user: " + username);
-
-        // Here you would make the backend call to get the user's contacts
-        String response = showContacts("http://localhost:5000/ShowContacts", username);
-        //String response = "Success:Msritina;Jim;Mitsos33;Magkas";
-        String[] stringarray = response.split(":");
-        String statusValue = stringarray[0];
-        String Contacts = stringarray[1];
-        String[] contactArray = Contacts.split(";");
-        /*
-        if (statusValue.equals("Success")){
-            //chatList = FXCollections.observableArrayList(contactArray);
-            for (String contact : contactArray) {
-                System.out.println(contact);
-                chatList.add(contact);
-            }
-        }* /
-        chatList.addAll(contactArray);
-        chatListView.setItems(chatList);
-    }
-
-
-    private void loadChat() {
-        String selectedChat = chatListView.getSelectionModel().getSelectedItem();
-        if (selectedChat != null) {
-            chatMessagesContainer.getChildren().clear();
-            addMessage("Welcome to your chat with " + selectedChat, "system");
-        }
-    }
-
-
-
-    @FXML
-    private void handleSendMessage() {
-        String message = messageInputField.getText();
-        if (message.trim().isEmpty()) return;
-
-        addMessage("You: " + message, "sent");
-        messageInputField.clear();
-
-        // Simulated reply
-        simulateReply();
-    }
-
-    @FXML
-    private void handleAddContact() {
-        String newContact = addContactField.getText();
-        if (newContact == null || newContact.trim().isEmpty()) return;
-
-        if (!chatList.contains(newContact)) {
-            String response = makeHttpRequest("http://localhost:5000/AddContacts", username, newContact);
-            String[] stringarray = response.split(":");
-            String statusValue = stringarray[0];
-            String Message = stringarray[1];
-            
-            if (statusValue.equals("Success")){
-                chatList.add(newContact);
-                addContactField.clear();
-            }else{
-                addContactField.clear();
-                addContactField.setText(Message);
-                addContactField.setStyle("-fx-text-fill: red;");
-            }
-        } else {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Duplicate Contact");
-            alert.setHeaderText(null);
-            alert.setContentText("This contact is already in your list.");
-            alert.showAndWait();
-        }
-    }
-
-
-    private void simulateReply() {
-        addMessage("Hello! This is a simulated reply.", "received");
-    }
-
-
-
-    private void addMessage(String text, String type) {
-        Label messageLabel = new Label(text);
-        messageLabel.getStyleClass().add(type);
-        HBox messageContainer = new HBox(messageLabel);
-        messageContainer.getStyleClass().add("message-box");
-        messageContainer.setAlignment(type.equals("sent") ? javafx.geometry.Pos.CENTER_RIGHT : javafx.geometry.Pos.CENTER_LEFT);
-
-        chatMessagesContainer.getChildren().add(messageContainer);
-
-        // Scroll to the latest message
-        chatScrollPane.layout();
-        chatScrollPane.setVvalue(1.0);
-    }
-    
-    
-    private String makeHttpRequest(String urlString, String username, String Contact) {
-        try {
-            // Create URL and Connection
-            URL url = new URL(urlString);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-            // Configure Connection
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
-
-            // Create JSON Payload
-            String jsonPayload = String.format("{\"username\": \"%s\", \"contact\": \"%s\"}", username, Contact);
-
-            // Write Payload
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(jsonPayload.getBytes());
-                os.flush();
-            }
-
-            // Read Response
-            int responseCode = conn.getResponseCode();
-            Scanner scanner = new Scanner(conn.getInputStream());
-            StringBuilder response = new StringBuilder();
-            while (scanner.hasNext()) {
-                response.append(scanner.nextLine());
-            }
-            scanner.close();
-            System.out.println(response);
-            System.out.println("From Conteroller HTTP: " + response);
-            
-            if (responseCode == 600 || responseCode == 601){
-                return response.toString();
-            }
-            return ("Success:"+response.toString());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Error:Unable to connect to the server";
-        }
-    }
-    
-    private String showContacts(String urlString, String username) {
-        try {
-            // Create URL and Connection
-            URL url = new URL(urlString);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-            // Configure Connection
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
-
-            // Create JSON Payload
-            String jsonPayload = String.format("{\"username\": \"%s\"}", username);
-
-            // Write Payload
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(jsonPayload.getBytes());
-                os.flush();
-            }
-
-            // Read Response
-            int responseCode = conn.getResponseCode();
-            Scanner scanner = new Scanner(conn.getInputStream());
-            StringBuilder response = new StringBuilder();
-            while (scanner.hasNext()) {
-                response.append(scanner.nextLine());
-            }
-            scanner.close();
-            System.out.println(response);
-            System.out.println("From Conteroller HTTP: " + response);
-
-            return ("Success:"+response.toString());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Error:Unable to connect to the server";
-        }
-    }
-}
-
-*/
 
 //----------------------------------------------------------------------------------------------
 //Need to add:
