@@ -110,10 +110,16 @@ def ShowContacts():
 
     conn.close();
 
-    contacts_string = ";".join(contact[0] for contact in contacts)
-    print(contacts_string)
+    #contacts_string = ";".join(contact[0] for contact in contacts)
+    #print(contacts_string)
 
-    return contacts_string, 100
+    #return contacts_string, 100
+    if contacts:
+        contacts_list = [contact[0] for contact in contacts]
+        return jsonify({"status": "Success", "contacts": contacts_list}), 200
+    else:
+        return jsonify({"status": "Error", "message": "No contacts found"}), 400
+
 
 @app.route("/AddContacts", methods=["POST"])
 def AddContacts():
