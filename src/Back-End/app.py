@@ -32,17 +32,17 @@ def initialize_database():
         FOREIGN KEY(username) REFERENCES Users(username)
     )
     ''')
-    """ 
+     
     # Create Chats table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS Chats (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
+        username TEXT NOT NULL,
+        contact_username TEXT NOT NULL,
         message TEXT NOT NULL,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(user_id) REFERENCES Users(id)
+        FOREIGN KEY(username) REFERENCES Users(username)
     )
-    ''')"""
+    ''')
     
     conn.commit()
     conn.close()
@@ -146,8 +146,35 @@ def AddContacts():
         conn.close()
         return "Error:User not found.", 601
 
+   
+#Add function for --Save Messages--  
+@app.route("/SaveMessage", methods=['POST'])
+def SaveMessage():
+    conn = sqlite3.connect('chat_app.db')
+    cursor = conn.cursor()
+    data = request.json
+
+    username = data.get("username")
+    contact = data.get("contact")
+    message = data.get("message")
+    print("Hello")
+    print(f"Username: {username} \nContact: {contact} \nMessage: {message}")
+    if (not username) or (not contact) or (not message):
+        return "Error:Invalid request format", 400
     
-#Add function for --Show Messages--  
+    cursor.execute('INSERT INTO Chats (username, contact_username, message) VALUES (?, ?, ?)', (username, contact, message))
+    conn.commit()
+    conn.close()
+    return "Success:Contact added successfully.", 600
+
+
+@app.route("/loadMessages", methods=["GET",'POST'])
+def loadMessages():
+    conn = sqlite3.connect('chat_app.db')
+    cursor = conn.cursor()
+    data = request.json
+    username = data.get("username")
+    contact = data.get("contact")
 
 
 

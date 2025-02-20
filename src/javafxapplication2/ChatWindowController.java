@@ -4,6 +4,7 @@ package javafxapplication2;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,6 +17,8 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.*;
 
 public class ChatWindowController {
@@ -33,6 +36,8 @@ public class ChatWindowController {
     private ObservableList<String> chatList = FXCollections.observableArrayList();
     
     private String username;
+    
+    private String selectedChat;
 
     public ChatWindowController() {
         this.chatList = FXCollections.observableArrayList();
@@ -124,14 +129,30 @@ public class ChatWindowController {
         //chatListView.setOnMouseClicked(event -> loadChat());
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     private void loadChat() {
-        String selectedChat = chatListView.getSelectionModel().getSelectedItem();
+        selectedChat = chatListView.getSelectionModel().getSelectedItem();
         if (selectedChat != null) {
             chatMessagesContainer.getChildren().clear();
             addMessage("Welcome to your chat with " + selectedChat, "system");
+            
         }else{
             //Load Chats
         }
+        
+        
     }  //After saving messages,build this
 
     @FXML
@@ -140,6 +161,7 @@ public class ChatWindowController {
         if (message.trim().isEmpty()) return;
 
         addMessage("You: " + message, "sent");
+        String response = saveMessage("http://localhost:5000/SaveMessage", username,selectedChat,message);        
         messageInputField.clear();
 
         simulateReply();
@@ -179,7 +201,7 @@ public class ChatWindowController {
         chatScrollPane.setVvalue(1.0);
     }
     
-     private String showContacts(String urlString, String username) {
+    private String showContacts(String urlString, String username) {
         try {
             // Create URL and Connection
             URL url = new URL(urlString);
@@ -192,6 +214,88 @@ public class ChatWindowController {
 
             // Create JSON Payload
             String jsonPayload = String.format("{\"username\": \"%s\"}", username);
+
+            // Write Payload
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(jsonPayload.getBytes());
+                os.flush();
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode != 200) {
+                return "Error: Server responded with " + responseCode;
+            }
+
+            Scanner scanner = new Scanner(conn.getInputStream());
+            StringBuilder response = new StringBuilder();
+            while (scanner.hasNext()) {
+                response.append(scanner.nextLine());
+            }
+            scanner.close();
+
+            //System.out.println("Response from HTTP: " + response.toString());
+            return response.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error:Unable to connect to the server";
+        }
+    }
+     
+    private String saveMessage(String urlString, String username, String contact, String message){
+        try {
+            // Create URL and Connection
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            // Configure Connection
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
+
+            // Create JSON Payload
+            String jsonPayload = String.format("{\"username\": \"%s\", \"contact\": \"%s\", \"message\": \"%s\"}", username, contact, message);
+
+            // Write Payload
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(jsonPayload.getBytes());
+                os.flush();
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode != 200) {
+                return "Error: Server responded with " + responseCode;
+            }
+
+            Scanner scanner = new Scanner(conn.getInputStream());
+            StringBuilder response = new StringBuilder();
+            while (scanner.hasNext()) {
+                response.append(scanner.nextLine());
+            }
+            scanner.close();
+
+            //System.out.println("Response from HTTP: " + response.toString());
+            return response.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error:Unable to connect to the server";
+        }
+    }
+    
+    private String loadMessages(String urlString, String username, String contact){
+        try {
+            // Create URL and Connection
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            // Configure Connection
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
+
+            // Create JSON Payload
+            String jsonPayload = String.format("{\"username\": \"%s\", \"contact\": \"%s\"}", username, contact);
 
             // Write Payload
             try (OutputStream os = conn.getOutputStream()) {
