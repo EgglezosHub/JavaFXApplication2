@@ -20,6 +20,12 @@
 
     <!-- Chat Main Panel -->
     <VBox spacing="10" styleClass="chat-main-panel" HBox.hgrow="ALWAYS">
+        <!-- Chat Header Section with Back Arrow -->
+        <HBox spacing="10" styleClass="chat-header">
+            <Button fx:id="backButton" text="← Chat" onAction="#handleExitChat" styleClass="back-button"/>
+            
+        </HBox>
+    
         <!-- Chat Messages Section -->
         <ScrollPane fx:id="chatScrollPane" fitToWidth="true" fitToHeight="true" styleClass="chat-display" VBox.vgrow="ALWAYS">
             <VBox fx:id="chatMessagesContainer" spacing="10" styleClass="chat-messages"/>

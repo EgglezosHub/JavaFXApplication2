@@ -5,10 +5,6 @@ import sqlite3
 app = Flask(__name__)
 CORS(app)  # Allow requests from JavaFX
 
-# Simulated in-memory storage
-users = {}
-messages = {}
-friendships = {}
 
 # Initialize the database
 def initialize_database():
@@ -48,7 +44,6 @@ def initialize_database():
     conn.close()
 
 
-
 @app.route("/register", methods=["POST"])
 def register():
     conn = sqlite3.connect('chat_app.db')
@@ -72,6 +67,7 @@ def register():
         return "Error:Username already exists", 400
     conn.close()
 
+
 @app.route("/login", methods=["POST"])
 def login():
     conn = sqlite3.connect('chat_app.db')
@@ -93,7 +89,6 @@ def login():
         return "Success:Login successful", 200
     else:
         return "Error:Invalid credentials", 400
-
 
 
 @app.route("/ShowContacts", methods=["GET", 'POST'])
@@ -147,7 +142,6 @@ def AddContacts():
         return "Error:User not found.", 601
 
    
-#Add function for --Save Messages--  
 @app.route("/SaveMessage", methods=['POST'])
 def SaveMessage():
     conn = sqlite3.connect('chat_app.db')
@@ -201,7 +195,6 @@ def loadMessages():
     messages_list = [{"message": row[0], "sender": row[1]} for row in rows]
     print(f"List:\n {messages_list}")
     return jsonify({"status": "Success", "messages": messages_list}), 200
-
 
 
 if __name__ == "__main__":

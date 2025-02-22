@@ -141,3 +141,12 @@
     -fx-pref-height: 40;
 
 }
+
+.back-button {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #4caf50;
+    -fx-font-size: 30px;
+    -fx-cursor: hand;
+}

@@ -23,7 +23,7 @@ public class JavaFXApplication2 extends Application {
         //Image icon = new Image("/icon.jpg");
         //primaryStage.getIcons().add(icon);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Cross-Platform Messaging App1");
+        primaryStage.setTitle("Cross-Platform Messaging App");
         primaryStage.show();
     }
 

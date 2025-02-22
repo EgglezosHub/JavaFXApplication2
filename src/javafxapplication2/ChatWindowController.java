@@ -20,6 +20,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.*;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.util.Duration;
+
 public class ChatWindowController {
     @FXML
     private ListView<String> chatListView;
@@ -37,6 +48,14 @@ public class ChatWindowController {
     private String username;
     
     private String selectedChat;
+    
+    private Timeline chatReloadTimer, contactReloadTimer;
+        
+    // Added to keep track of how many messages and contacts have already been loaded
+    private int lastMessageCount = 0, lastContactCount = 0;
+    
+    // Flag for first load of a chat
+    private boolean isFirstLoad = false;
 
     public ChatWindowController() {
         this.chatList = FXCollections.observableArrayList();
@@ -44,7 +63,6 @@ public class ChatWindowController {
     
     public void setUsername(String usernam) {
         this.username = usernam;
-        
         postInitialize();
     }
     
@@ -64,68 +82,104 @@ public class ChatWindowController {
                 handleAddContact();
             }
         });
-        chatListView.setOnMouseClicked(event -> loadChat());
+        //chatListView.setOnMouseClicked(event -> loadChat());
+        chatListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            // When a chat is selected, start the reload timer.
+            if (newVal != null) {
+                // Clear previous messages if needed and set the selected chat.
+                selectedChat = newVal;
+                chatMessagesContainer.getChildren().clear();
+                lastMessageCount = 0;
+                isFirstLoad = true;
+                addMessage("Welcome to your chat with " + selectedChat, "system");
+                startChatReloadTimer();
+            } else {
+                // If no chat is selected, stop the timer.
+                stopChatReloadTimer();
+            }
+        });
     }
     
+    // Start the timer to reload chat messages every second.
+    private void startChatReloadTimer() {
+        // If a timer is already running, stop it first.
+        if (chatReloadTimer != null) {
+            chatReloadTimer.stop();
+        }
+        chatReloadTimer = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            loadChat();  // Refresh the chat messages every second.
+        }));
+        chatReloadTimer.setCycleCount(Timeline.INDEFINITE);
+        chatReloadTimer.play();
+    }
     
+    // Stop the auto-refresh timer.
+    private void stopChatReloadTimer() {
+        if (chatReloadTimer != null) {
+            chatReloadTimer.stop();
+        }
+    }
+    
+    private void startContactReloadTimer() {
+        if (contactReloadTimer != null) {
+            contactReloadTimer.stop();
+            System.out.println("Existing contact reload timer stopped.");
+        }
+        System.out.println("Starting contact reload timer...");
+        contactReloadTimer = new Timeline(new KeyFrame(Duration.seconds(10), event -> {
+            System.out.println("Reloading contacts...");
+            fetchContactsForUser();  // Refresh contacts every 10 seconds
+        }));
+        contactReloadTimer.setCycleCount(Timeline.INDEFINITE);
+        contactReloadTimer.play();
+    }
+
     // Custom method for username-dependent initialization
     private void postInitialize() {
         if (username != null) {
             System.out.println("Initializing with username: " + username);
-
-            // Simulate fetching data from the backend
             fetchContactsForUser();
+            startContactReloadTimer();
         }
     }
     
     private void fetchContactsForUser() {
         System.out.println("Fetching contacts for user: " + username);        
-        
-        // Here you would make the backend call to get the user's contacts
+
+        // Call the backend
         String response = showContacts("http://localhost:5000/ShowContacts", username);
-        String[] stringarray = response.split(":");
-        //System.out.println("HERE:\n1: " + stringarray[0] + "\n2: " + stringarray[1] + "\n2: " + stringarray[2]);
-        String statusValue = stringarray[2];        
-        
-        // Extract status inside double quotes
-        Pattern quotePattern1 = Pattern.compile("\"(.*?)\"");
-        Matcher quoteMatcher1 = quotePattern1.matcher(statusValue);
-        String status = quoteMatcher1.find() ? quoteMatcher1.group(1) : "";
-        // Print result
-        //System.out.println("statusValue: " + status);
+        System.out.println("Server Response: " + response);
 
 
-        // Extract contacts inside double quotes
-        String input = stringarray[1];
-        // Extract content inside brackets
-        Pattern bracketPattern = Pattern.compile("\\[(.*?)\\]");
-        Matcher bracketMatcher = bracketPattern.matcher(input);
-        String insideBrackets = bracketMatcher.find() ? bracketMatcher.group(1) : "";
-        // Extract words inside double quotes
-        Pattern quotePattern = Pattern.compile("\"(.*?)\"");
-        Matcher quoteMatcher = quotePattern.matcher(insideBrackets);
-        List<String> extractedList = new ArrayList<>();
-        while (quoteMatcher.find()) {
-            extractedList.add(quoteMatcher.group(1));
-        }
-        // Convert List to String Array
-        String[] Contacts = extractedList.toArray(new String[0]);
-        // Print result
-        //System.out.println(Arrays.toString(Contacts));
-        //System.out.println("Array: " + Arrays.toString(Contacts));
-        
+        try {
+            JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
+            JsonArray contactsArray = jsonObject.getAsJsonArray("contacts");
+            String status = jsonObject.get("status").getAsString();
 
-        if (status.equals("Success")){
-            boolean addAll = chatList.addAll(Arrays.asList(Contacts));
-            if (addAll == false){
-                System.out.println("Error: Can't put contacts on chatList");
+            if ("Success".equals(status)) {
+                System.out.println("Contact Inside heyyyyyyy");
+                List<String> contactsList = new ArrayList<>();
+                for (int i = 0; i < contactsArray.size(); i++) {
+                    contactsList.add(contactsArray.get(i).getAsString());
+                }
+                int newContactCount = contactsList.size();
+                if (newContactCount > lastContactCount) { // Check if a new contact was added
+                    chatList.setAll(contactsList);
+                    lastContactCount = newContactCount; // Update counter
+                }
+            } else {
+                System.out.println("Error: Unable to fetch contacts.");
             }
-        }else{
-            System.out.println("Status: False"); //represents the error message
+        } catch (Exception e) {
+            System.out.println("Error parsing JSON response: " + e.getMessage());
         }
-        //System.out.println("ChatList: " + Arrays.toString(Contacts));
+
         chatListView.setItems(chatList);
-        //chatListView.setOnMouseClicked(event -> loadChat());
+        Platform.runLater(() -> {
+            System.out.println("Starting contact reload timer on JavaFX thread.");
+            startContactReloadTimer();
+        });
+
     }
 
     
@@ -139,78 +193,47 @@ public class ChatWindowController {
     
     
     
-    
+    private class ChatMessage {
+        String message;
+        String sender;
+    }
     
     private void loadChat() {
-        selectedChat = chatListView.getSelectionModel().getSelectedItem();
+        //selectedChat = chatListView.getSelectionModel().getSelectedItem();
         if (selectedChat != null) {
-            chatMessagesContainer.getChildren().clear();
-            addMessage("Welcome to your chat with " + selectedChat, "system");
             String response = loadMessages("http://localhost:5000/loadMessages", username, selectedChat);
-            
-            //Get anything inside the brackets [ ... ] (the messages info)
-            Pattern bracketPattern = Pattern.compile("\\[(.*?)\\]");
-            Matcher bracketMatcher = bracketPattern.matcher(response);
-            String insideBrackets = bracketMatcher.find() ? bracketMatcher.group(1) : "";
-            
-            //Pass through a list, every message inside { ... }
-            // List to hold each element extracted from the curly braces
-            List<String> messagesList = new ArrayList<>();
+            JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
+            JsonArray messagesArray = jsonObject.getAsJsonArray("messages");
 
-            // Regular expression to capture content inside { and }
-            Pattern pattern = Pattern.compile("\\{([^}]+)\\}");
-            Matcher matcher = pattern.matcher(insideBrackets);
-
-            // Find all matches and add the inner content to the list
-            while (matcher.find()) {
-                String content = matcher.group(1).trim();
-                messagesList.add(content);
+            int newCount = messagesArray.size();
+            if (newCount > lastMessageCount) {
+                for (int i = lastMessageCount; i < newCount; i++) {
+                    ChatMessage msg = new Gson().fromJson(messagesArray.get(i), ChatMessage.class);
+                    addMessage(msg.message, msg.sender);
+                }
+                lastMessageCount = newCount;
             }
-
-            // Print the result for each element in the list
-            for (int i = 0; i < messagesList.size(); i++) {
-                String[] mess1 = (messagesList.get(i)).split(",");
-                
-                //Get Message---------------------------------------------------
-                String[] mess2_1 = mess1[0].split(":");
-                Pattern pattern1 = Pattern.compile("\"([^\"]*)\"");
-                Matcher matcher1 = pattern1.matcher(mess2_1[1]);
-                String message = "";
-                if (matcher1.find()) {
-                    message = matcher1.group(1);
+            Platform.runLater(() -> {
+                // On first load, always scroll to bottom
+                if (isFirstLoad) {
+                    chatScrollPane.setVvalue(1.0);
+                    isFirstLoad = false;
                 } else {
-                    System.out.println("No Message found.");
+                    // On subsequent reloads, scroll only if user is near the bottom
+                    if (chatScrollPane.getVvalue() > 0.9) {
+                        chatScrollPane.setVvalue(1.0);
+                    }
                 }
-                
-                //Get sender----------------------------------------------------
-                String[] mess2_2 = mess1[1].split(":");
-                Pattern pattern2 = Pattern.compile("\"([^\"]*)\"");
-                Matcher matcher2 = pattern2.matcher(mess2_2[1]);
-                String sender = "";
-                if (matcher2.find()) {
-                    sender = matcher2.group(1);
-                } else {
-                    System.out.println("No Sender found.");
-                }
-                
-                //Load Messages
-                if (!(message.isEmpty()) || !(sender.isEmpty())){
-                    addMessage(message, sender);
-                }
-            }
-        }else{
-            //Load Chats
+            });
         }
-        
-        
-    }  //After saving messages,build this
+    }
 
     @FXML
     private void handleSendMessage() {
         String message = messageInputField.getText();
         if (message.trim().isEmpty()) return;
 
-        addMessage("You: " + message, "sent");
+        //addMessage("You: " + message, "sent");
         String response = saveMessage("http://localhost:5000/SaveMessage", username,selectedChat,message);        
         messageInputField.clear();
     }
@@ -221,6 +244,7 @@ public class ChatWindowController {
         if (newContact == null || newContact.trim().isEmpty()) return;
 
         if (!chatList.contains(newContact)) {
+            String response = loadMessages("http://localhost:5000/AddContacts", username, newContact);
             chatList.add(newContact);
             addContactField.clear();
         } else {
@@ -231,6 +255,25 @@ public class ChatWindowController {
             alert.showAndWait();
         }
     }
+    
+    @FXML
+    private void handleExitChat() {
+        // Stop the auto-refresh timer.
+        stopChatReloadTimer();
+
+        // Clear the selected chat and the chat messages.
+        selectedChat = null;
+        chatMessagesContainer.getChildren().clear();
+
+        // Optionally, you could reset any header labels or perform additional navigation,
+        // for example, by re-selecting a default view or contact list.
+        lastMessageCount = 0;
+        
+        chatListView.getSelectionModel().clearSelection();
+
+            
+        System.out.println("Exited current chat.");
+    }
 
     private void addMessage(String text, String type) {
         Label messageLabel = new Label(text);
@@ -240,9 +283,6 @@ public class ChatWindowController {
         messageContainer.setAlignment(type.equals("sent") ? javafx.geometry.Pos.CENTER_RIGHT : javafx.geometry.Pos.CENTER_LEFT);
 
         chatMessagesContainer.getChildren().add(messageContainer);
-
-        chatScrollPane.layout();
-        chatScrollPane.setVvalue(1.0);
     }
     
     private String showContacts(String urlString, String username) {
@@ -327,6 +367,7 @@ public class ChatWindowController {
         }
     }
     
+    //Also used for adding contacts through handleAddContact() by sending the username and the name of the new contact to the Back-End
     private String loadMessages(String urlString, String username, String contact){
         try {
             // Create URL and Connection
