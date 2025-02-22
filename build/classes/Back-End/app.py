@@ -153,8 +153,6 @@ def SaveMessage():
     conn = sqlite3.connect('chat_app.db')
     cursor = conn.cursor()
     data = request.json
-    #if not data or "username" not in data or "contact" not in data:
-        #return "Error:Invalid request format", 400
 
     username = data.get("username")
     contact = data.get("contact")
@@ -166,9 +164,44 @@ def SaveMessage():
     
     cursor.execute('INSERT INTO Chats (username, contact_username, message) VALUES (?, ?, ?)', (username, contact, message))
     conn.commit()
-
     conn.close()
-""" """
+    return "Success:Contact added successfully.", 600
+
+
+@app.route("/loadMessages", methods=["GET",'POST'])
+def loadMessages():
+    conn = sqlite3.connect('chat_app.db')
+    cursor = conn.cursor()
+    data = request.json
+    username = data.get("username")
+    contact = data.get("contact")
+    if not username or not contact:
+        conn.close()
+        return jsonify({"status": "Error", "message": "Missing username or contact"}), 400
+
+    query = """
+        SELECT 
+            message,
+            CASE 
+                WHEN username = ? AND contact_username = ? THEN 'sent'
+                WHEN username = ? AND contact_username = ? THEN 'receive'
+            END AS sender
+        FROM Chats
+        WHERE (username = ? AND contact_username = ?)
+        OR (username = ? AND contact_username = ?)
+        ORDER BY timestamp;
+    """
+    
+    params = (username, contact, contact, username, username, contact, contact, username)
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    conn.close()
+    
+    # Build the messages list without including the timestamp
+    messages_list = [{"message": row[0], "sender": row[1]} for row in rows]
+    print(f"List:\n {messages_list}")
+    return jsonify({"status": "Success", "messages": messages_list}), 200
+
 
 
 if __name__ == "__main__":

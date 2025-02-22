@@ -1,4 +1,3 @@
-
 package javafxapplication2;
 
 import java.net.HttpURLConnection;
@@ -147,7 +146,58 @@ public class ChatWindowController {
         if (selectedChat != null) {
             chatMessagesContainer.getChildren().clear();
             addMessage("Welcome to your chat with " + selectedChat, "system");
+            String response = loadMessages("http://localhost:5000/loadMessages", username, selectedChat);
             
+            //Get anything inside the brackets [ ... ] (the messages info)
+            Pattern bracketPattern = Pattern.compile("\\[(.*?)\\]");
+            Matcher bracketMatcher = bracketPattern.matcher(response);
+            String insideBrackets = bracketMatcher.find() ? bracketMatcher.group(1) : "";
+            
+            //Pass through a list, every message inside { ... }
+            // List to hold each element extracted from the curly braces
+            List<String> messagesList = new ArrayList<>();
+
+            // Regular expression to capture content inside { and }
+            Pattern pattern = Pattern.compile("\\{([^}]+)\\}");
+            Matcher matcher = pattern.matcher(insideBrackets);
+
+            // Find all matches and add the inner content to the list
+            while (matcher.find()) {
+                String content = matcher.group(1).trim();
+                messagesList.add(content);
+            }
+
+            // Print the result for each element in the list
+            for (int i = 0; i < messagesList.size(); i++) {
+                String[] mess1 = (messagesList.get(i)).split(",");
+                
+                //Get Message---------------------------------------------------
+                String[] mess2_1 = mess1[0].split(":");
+                Pattern pattern1 = Pattern.compile("\"([^\"]*)\"");
+                Matcher matcher1 = pattern1.matcher(mess2_1[1]);
+                String message = "";
+                if (matcher1.find()) {
+                    message = matcher1.group(1);
+                } else {
+                    System.out.println("No Message found.");
+                }
+                
+                //Get sender----------------------------------------------------
+                String[] mess2_2 = mess1[1].split(":");
+                Pattern pattern2 = Pattern.compile("\"([^\"]*)\"");
+                Matcher matcher2 = pattern2.matcher(mess2_2[1]);
+                String sender = "";
+                if (matcher2.find()) {
+                    sender = matcher2.group(1);
+                } else {
+                    System.out.println("No Sender found.");
+                }
+                
+                //Load Messages
+                if (!(message.isEmpty()) || !(sender.isEmpty())){
+                    addMessage(message, sender);
+                }
+            }
         }else{
             //Load Chats
         }
@@ -163,8 +213,6 @@ public class ChatWindowController {
         addMessage("You: " + message, "sent");
         String response = saveMessage("http://localhost:5000/SaveMessage", username,selectedChat,message);        
         messageInputField.clear();
-
-        simulateReply();
     }
 
     @FXML
@@ -182,10 +230,6 @@ public class ChatWindowController {
             alert.setContentText("This contact is already in your list.");
             alert.showAndWait();
         }
-    }
-
-    private void simulateReply() {
-        addMessage("Hello! This is a simulated reply.", "received");
     }
 
     private void addMessage(String text, String type) {

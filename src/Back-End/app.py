@@ -175,6 +175,32 @@ def loadMessages():
     data = request.json
     username = data.get("username")
     contact = data.get("contact")
+    if not username or not contact:
+        conn.close()
+        return jsonify({"status": "Error", "message": "Missing username or contact"}), 400
+
+    query = """
+        SELECT 
+            message,
+            CASE 
+                WHEN username = ? AND contact_username = ? THEN 'sent'
+                WHEN username = ? AND contact_username = ? THEN 'received'
+            END AS sender
+        FROM Chats
+        WHERE (username = ? AND contact_username = ?)
+        OR (username = ? AND contact_username = ?)
+        ORDER BY timestamp;
+    """
+    
+    params = (username, contact, contact, username, username, contact, contact, username)
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    conn.close()
+    
+    # Build the messages list without including the timestamp
+    messages_list = [{"message": row[0], "sender": row[1]} for row in rows]
+    print(f"List:\n {messages_list}")
+    return jsonify({"status": "Success", "messages": messages_list}), 200
 
 
 
