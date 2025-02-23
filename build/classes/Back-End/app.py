@@ -100,15 +100,11 @@ def ShowContacts():
     cursor.execute('SELECT contact_username FROM Contacts WHERE username = ?', (username,))
     contacts = cursor.fetchall()
 
-    print(contacts)
-    print(contacts[0])
+    #print(contacts)
+    #print(contacts[0])
 
     conn.close();
 
-    #contacts_string = ";".join(contact[0] for contact in contacts)
-    #print(contacts_string)
-
-    #return contacts_string, 100
     if contacts:
         contacts_list = [contact[0] for contact in contacts]
         return jsonify({"status": "Success", "contacts": contacts_list}), 200
@@ -136,10 +132,13 @@ def AddContacts():
         cursor.execute('INSERT INTO Contacts (username, contact_username) VALUES (?, ?)', (contact[0], user[0]))
         conn.commit()
         conn.close()
-        return "Success:Contact added successfully.", 600
+        #return "Success:Contact added successfully.", 600
+        return jsonify({"status": "Success", "message": "Contact added successfully."}), 200
+
     else:
         conn.close()
-        return "Error:User not found.", 601
+        #return "Error:User not found.", 601
+        return jsonify({"status": "Error", "message": "User not found."}), 200
 
    
 @app.route("/SaveMessage", methods=['POST'])
@@ -151,8 +150,6 @@ def SaveMessage():
     username = data.get("username")
     contact = data.get("contact")
     message = data.get("message")
-    print("Hello")
-    print(f"Username: {username} \nContact: {contact} \nMessage: {message}")
     if (not username) or (not contact) or (not message):
         return "Error:Invalid request format", 400
     
@@ -193,7 +190,6 @@ def loadMessages():
     
     # Build the messages list without including the timestamp
     messages_list = [{"message": row[0], "sender": row[1]} for row in rows]
-    print(f"List:\n {messages_list}")
     return jsonify({"status": "Success", "messages": messages_list}), 200
 
 

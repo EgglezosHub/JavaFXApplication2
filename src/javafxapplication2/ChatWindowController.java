@@ -24,12 +24,15 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.util.Duration;
+import javafx.scene.media.AudioClip;
+
 
 public class ChatWindowController {
     @FXML
@@ -82,7 +85,6 @@ public class ChatWindowController {
                 handleAddContact();
             }
         });
-        //chatListView.setOnMouseClicked(event -> loadChat());
         chatListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             // When a chat is selected, start the reload timer.
             if (newVal != null) {
@@ -122,13 +124,11 @@ public class ChatWindowController {
     
     private void startContactReloadTimer() {
         if (contactReloadTimer != null) {
-            contactReloadTimer.stop();
-            System.out.println("Existing contact reload timer stopped.");
+            contactReloadTimer.stop();  // Contact reload timer stopped
         }
-        System.out.println("Starting contact reload timer...");
-        contactReloadTimer = new Timeline(new KeyFrame(Duration.seconds(10), event -> {
-            System.out.println("Reloading contacts...");
-            fetchContactsForUser();  // Refresh contacts every 10 seconds
+        // Starting contact reload timer
+        contactReloadTimer = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            fetchContactsForUser();  // Reloading contacts, Refresh contacts every 1 second
         }));
         contactReloadTimer.setCycleCount(Timeline.INDEFINITE);
         contactReloadTimer.play();
@@ -139,17 +139,12 @@ public class ChatWindowController {
         if (username != null) {
             System.out.println("Initializing with username: " + username);
             fetchContactsForUser();
-            startContactReloadTimer();
         }
     }
     
     private void fetchContactsForUser() {
-        System.out.println("Fetching contacts for user: " + username);        
-
         // Call the backend
         String response = showContacts("http://localhost:5000/ShowContacts", username);
-        System.out.println("Server Response: " + response);
-
 
         try {
             JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
@@ -157,7 +152,6 @@ public class ChatWindowController {
             String status = jsonObject.get("status").getAsString();
 
             if ("Success".equals(status)) {
-                System.out.println("Contact Inside heyyyyyyy");
                 List<String> contactsList = new ArrayList<>();
                 for (int i = 0; i < contactsArray.size(); i++) {
                     contactsList.add(contactsArray.get(i).getAsString());
@@ -170,36 +164,22 @@ public class ChatWindowController {
             } else {
                 System.out.println("Error: Unable to fetch contacts.");
             }
-        } catch (Exception e) {
+        } catch (JsonSyntaxException e) {
             System.out.println("Error parsing JSON response: " + e.getMessage());
         }
 
         chatListView.setItems(chatList);
         Platform.runLater(() -> {
-            System.out.println("Starting contact reload timer on JavaFX thread.");
             startContactReloadTimer();
         });
-
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     private class ChatMessage {
         String message;
         String sender;
     }
     
     private void loadChat() {
-        //selectedChat = chatListView.getSelectionModel().getSelectedItem();
         if (selectedChat != null) {
             String response = loadMessages("http://localhost:5000/loadMessages", username, selectedChat);
             JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
@@ -209,6 +189,10 @@ public class ChatWindowController {
             if (newCount > lastMessageCount) {
                 for (int i = lastMessageCount; i < newCount; i++) {
                     ChatMessage msg = new Gson().fromJson(messagesArray.get(i), ChatMessage.class);
+                    if (!isFirstLoad && lastMessageCount > 0  && msg.sender.equals("received")) {
+                        AudioClip newMessageSound = new AudioClip(getClass().getResource("/Sounds/notification-2-269292.mp3").toExternalForm());
+                        newMessageSound.play();
+                    }
                     addMessage(msg.message, msg.sender);
                 }
                 lastMessageCount = newCount;
@@ -233,7 +217,6 @@ public class ChatWindowController {
         String message = messageInputField.getText();
         if (message.trim().isEmpty()) return;
 
-        //addMessage("You: " + message, "sent");
         String response = saveMessage("http://localhost:5000/SaveMessage", username,selectedChat,message);        
         messageInputField.clear();
     }
@@ -245,10 +228,32 @@ public class ChatWindowController {
 
         if (!chatList.contains(newContact)) {
             String response = loadMessages("http://localhost:5000/AddContacts", username, newContact);
-            chatList.add(newContact);
-            addContactField.clear();
+            JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
+            String status = jsonObject.get("status").getAsString();
+            String messagesArray = jsonObject.get("message").getAsString();
+            if ("Success".equals(status)){
+                AudioClip alertSound = new AudioClip(getClass().getResource("/Sounds/success-1-6297.mp3").toExternalForm());
+                alertSound.play();
+                chatList.add(newContact);
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle( newContact + " added as a new contact!");
+                alert.setHeaderText(null);
+                alert.setContentText(messagesArray);
+                alert.showAndWait();
+                addContactField.clear();
+            }else{
+                AudioClip alertSound = new AudioClip(getClass().getResource("/Sounds/message-alert-190042.mp3").toExternalForm());
+                alertSound.play();
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("User not found");
+                alert.setHeaderText(null);
+                alert.setContentText(messagesArray);
+                alert.showAndWait();
+            }
         } else {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            AudioClip alertSound = new AudioClip(getClass().getResource("/Sounds/message-alert-190042.mp3").toExternalForm());
+            alertSound.play();
+            Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Duplicate Contact");
             alert.setHeaderText(null);
             alert.setContentText("This contact is already in your list.");
@@ -264,13 +269,8 @@ public class ChatWindowController {
         // Clear the selected chat and the chat messages.
         selectedChat = null;
         chatMessagesContainer.getChildren().clear();
-
-        // Optionally, you could reset any header labels or perform additional navigation,
-        // for example, by re-selecting a default view or contact list.
         lastMessageCount = 0;
-        
         chatListView.getSelectionModel().clearSelection();
-
             
         System.out.println("Exited current chat.");
     }
@@ -317,7 +317,6 @@ public class ChatWindowController {
             }
             scanner.close();
 
-            //System.out.println("Response from HTTP: " + response.toString());
             return response.toString();
 
         } catch (Exception e) {
@@ -358,7 +357,6 @@ public class ChatWindowController {
             }
             scanner.close();
 
-            //System.out.println("Response from HTTP: " + response.toString());
             return response.toString();
 
         } catch (Exception e) {
@@ -400,7 +398,6 @@ public class ChatWindowController {
             }
             scanner.close();
 
-            //System.out.println("Response from HTTP: " + response.toString());
             return response.toString();
 
         } catch (Exception e) {
@@ -410,13 +407,12 @@ public class ChatWindowController {
     }
 }
 
-//----------------------------------------------------------------------------------------------
-//Need to add:
-//  - Function that will check if the user that we took from the python and SQL has a chat with his contacts
-//      - When we click on a Chat, this function will run and if he has a chat stored IN THE PAST with the contact,it will load the messages in the chat window
-//      - after that the sending message part will be used as it is
-//      - I will replace the simulate_response() function with a function that :
-//          - Will check in real time if the database has been updated with a new received message
-//          - If there is a new message, it will print it in the chat window
-//  - Function that will send the "sended messages" to the BACKEND (PYTHON) and through it there will be stored in the DATABASE SQL
-//----------------------------------------------------------------------------------------------
+
+
+/*
+|    To-Do List:
+|   -> 
+|   ->
+|   ->
+|   ->
+*/
