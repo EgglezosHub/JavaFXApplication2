@@ -1,5 +1,5 @@
 package javafxapplication2;
-
+//JavaFXApplication2
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -20,10 +20,10 @@ public class JavaFXApplication2 extends Application {
         // Set up the scene
         Scene scene = new Scene(root,1000,600);
         scene.getStylesheets().add(getClass().getResource("/javafxapplication2/style.css").toExternalForm());      
-        //Image icon = new Image("/icon.jpg");
-        //primaryStage.getIcons().add(icon);
+        Image icon = new Image("/Images/icon.png");
+        primaryStage.getIcons().add(icon);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Cross-Platform Messaging App");
+        primaryStage.setTitle("Messaging App");
         primaryStage.show();
     }
 

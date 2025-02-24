@@ -105,14 +105,14 @@ public class FXMLDocumentController {
                 chatWindowController.setUsername(username);
 
                 // Create a new scene for the chat window
-                Scene chatScene = new Scene(chatWindowRoot, 1100, 600);
+                Scene chatScene = new Scene(chatWindowRoot, 1000, 600);
                 chatScene.getStylesheets().add(getClass().getResource("/javafxapplication2/chatStyle.css").toExternalForm());
 
                 // Get the current stage and set the new scene
                 Stage stage = (Stage) usernameField.getScene().getWindow();
                 stage.setScene(chatScene);
                 stage.setTitle("Cross-Platform Messaging App - Chat Window");
-                //stage.getIcons().add(new Image("/icon.jpg"));
+                stage.getIcons().add(new Image("/Images/icon.png"));
 
                 stage.setResizable(false);
                 
