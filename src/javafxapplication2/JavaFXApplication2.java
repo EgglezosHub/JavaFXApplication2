@@ -23,7 +23,7 @@ public class JavaFXApplication2 extends Application {
         Image icon = new Image("/Images/icon.png");
         primaryStage.getIcons().add(icon);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Messaging App");
+        primaryStage.setTitle("ChatterBox");
         primaryStage.show();
     }
 

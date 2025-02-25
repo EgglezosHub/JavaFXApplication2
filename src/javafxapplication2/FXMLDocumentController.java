@@ -111,7 +111,7 @@ public class FXMLDocumentController {
                 // Get the current stage and set the new scene
                 Stage stage = (Stage) usernameField.getScene().getWindow();
                 stage.setScene(chatScene);
-                stage.setTitle("Cross-Platform Messaging App - Chat Window");
+                stage.setTitle("ChatterBox");
                 stage.getIcons().add(new Image("/Images/icon.png"));
 
                 stage.setResizable(false);
