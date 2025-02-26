@@ -45,7 +45,7 @@ A simple Messaging App that I developed to practice my knowledge on:
 ![alt text](https://github.com/EgglezosHub/JavaFXApplication2/blob/e37f1108bf8d4438d701cdce7293c80b1bb66029/resourses/Chat.gif)
 
 
-## Instalation
+## Installation
 ### 1. Download Java and Python
 <br/>
 
