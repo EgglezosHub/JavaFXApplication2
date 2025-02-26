@@ -3,8 +3,6 @@ package javafxapplication2;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,21 +10,13 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import java.util.Arrays;
 import java.util.Scanner;
-
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.*;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -137,13 +127,11 @@ public class ChatWindowController {
     // Custom method for username-dependent initialization
     private void postInitialize() {
         if (username != null) {
-            System.out.println("Initializing with username: " + username);
             fetchContactsForUser();
         }
     }
     
     private void fetchContactsForUser() {
-        // Call the backend
         String response = showContacts("http://localhost:5000/ShowContacts", username);
 
         try {
@@ -216,7 +204,6 @@ public class ChatWindowController {
     private void handleSendMessage() {
         String message = messageInputField.getText();
         if (message.trim().isEmpty()) return;
-
         String response = saveMessage("http://localhost:5000/SaveMessage", username,selectedChat,message);        
         messageInputField.clear();
     }
@@ -225,7 +212,6 @@ public class ChatWindowController {
     private void handleAddContact() {
         String newContact = addContactField.getText();
         if (newContact == null || newContact.trim().isEmpty()) return;
-
         if (!chatList.contains(newContact)) {
             String response = loadMessages("http://localhost:5000/AddContacts", username, newContact);
             JsonObject jsonObject = new JsonParser().parse(response).getAsJsonObject();
@@ -271,8 +257,6 @@ public class ChatWindowController {
         chatMessagesContainer.getChildren().clear();
         lastMessageCount = 0;
         chatListView.getSelectionModel().clearSelection();
-            
-        System.out.println("Exited current chat.");
     }
 
     private void addMessage(String text, String type) {
@@ -281,7 +265,6 @@ public class ChatWindowController {
         HBox messageContainer = new HBox(messageLabel);
         messageContainer.getStyleClass().add("message-box");
         messageContainer.setAlignment(type.equals("sent") ? javafx.geometry.Pos.CENTER_RIGHT : javafx.geometry.Pos.CENTER_LEFT);
-
         chatMessagesContainer.getChildren().add(messageContainer);
     }
     

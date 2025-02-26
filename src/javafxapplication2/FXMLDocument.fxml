@@ -1,61 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
-
 <?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.control.Label?>
-
 <?import javafx.scene.control.TextField?>
-
 <?import javafx.scene.control.PasswordField?>
-
 <?import javafx.scene.control.Button?>
 
-
-
 <VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javafxapplication2.FXMLDocumentController" spacing="20" alignment="CENTER" styleClass="root-container">
-
     <!-- Page Title -->
-
     <Label fx:id="pageTitle" text="Login" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
 
-
-
     <!-- Login Form -->
-
     <VBox fx:id="loginForm" spacing="20" alignment="CENTER" visible="true" managed="true" >
-
         <TextField fx:id="usernameField" promptText="Username" />
-
         <PasswordField fx:id="passwordField" promptText="Password" />
-
         <Label fx:id="loginMessageLabel" text="" style="-fx-text-fill: red;" visible="false" />
-
         <Button fx:id="loginButton" text="Login" onAction="#handleLoginButtonAction" styleClass="login-button" />
-
         <Button fx:id="registerButton" text="Register" onAction="#handleRegisterButtonAction" styleClass="register-button" />
-
     </VBox>
-
-    
 
     <!-- Registration Form (Initially Hidden) -->
-
     <VBox fx:id="registrationForm" spacing="20" alignment="CENTER" visible="false" managed="false">
-
         <TextField fx:id="newUsernameField" promptText="New Username" />
-
         <PasswordField fx:id="newPasswordField" promptText="New Password" />
-
         <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" />
-
         <Label fx:id="registrationMessageLabel" text="" style="-fx-text-fill: red;" visible="false" />
-
         <Button fx:id="submitRegisterButton" text="Submit Registration" onAction="#handleRegisterSubmit" />
-
         <Button fx:id="backToLoginButton" text="Back to Login" onAction="#handleBackToLoginButtonAction" />
-
     </VBox>
-
 </VBox>

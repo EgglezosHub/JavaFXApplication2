@@ -1,211 +1,109 @@
- /* Root Container */
+/* Root Container */
 
 .root-container {
-
     -fx-background-color: #f0f2f5;
-
     -fx-padding: 40px;
-
     -fx-alignment: center;
-
     -fx-font-family: 'Arial', sans-serif;
-
 }
-
-
 
 /* Page Title */
-
 #pageTitle {
-
     -fx-font-size: 32px;
-
     -fx-font-weight: bold;
-
     -fx-text-fill: #333333;
-
     -fx-margin-bottom: 20px;
-
 }
 
-
-
 /* General Form Style */
-
 VBox {
-
     -fx-background-color: #ffffff; /* Dark card-like background */
-
     -fx-padding: 25px;
-
     -fx-spacing: 15px;
-
     -fx-border-radius: 10px;
-
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.5, 0, 2);
-
     -fx-opacity: 1;
-
     -fx-transition: opacity 0.3s ease;
-
 }
 
 VBox:invisible {
-
     -fx-opacity: 0; /* Fade out when invisible */
-
     -fx-managed: false;
-
 }
-
-
 
 /* Input Fields */
-
 .text-field, .password-field {
-
     -fx-background-color: #ffffff; /* Slightly lighter background */
-
     -fx-text-fill: #333333; /* White text */
-
     -fx-prompt-text-fill: #999999; /* Light placeholder text */
-
     -fx-border-color: #cccccc;
-
     -fx-border-radius: 5px;
-
     -fx-padding: 10px;
-
     -fx-font-size: 14px;
-
     -fx-pref-width: 300px;
-
 }
-
-
 
 .text-field:focused, .password-field:focused {
-
     -fx-border-color: #66afe9; /* Blue border on focus */
-
     -fx-background-color: #f7f7f7; /* Even lighter background */
-
 }
-
-
 
 /* Buttons */
-
 .button {
-
     -fx-background-color: #4a90e2; /* Blue button */
-
     -fx-text-fill: #ffffff; /* White text */
-
     -fx-font-size: 16px;
-
     -fx-padding: 10px 20px;
-
     -fx-border-radius: 5px;
-
     -fx-cursor: hand;
-
     -fx-transition: background-color 0.3s ease;
-
 }
-
-
 
 .button:hover {
-
     -fx-background-color: #3a78c2; /* Darker blue on hover */
-
 }
-
-
 
 .button:pressed {
-
     -fx-background-color: #2a5ba2; /* Even darker blue on press */
-
 }
-
-
 
 /* Back to Login Button (Special Style) */
-
 #backToLoginButton {
-
     -fx-background-color: #e74c3c; /* Red button for back */
-
     -fx-text-fill: #ffffff;
-
 }
-
-
 
 #backToLoginButton:hover {
-
     -fx-background-color: #c0392b; /* Darker red on hover */
-
 }
-
-
 
 #backToLoginButton:pressed {
-
     -fx-background-color: #a93226; /* Even darker red on press */
-
 }
 
-
-
 /* Labels for Messages */
-
 #loginMessageLabel, #registrationMessageLabel {
-
     -fx-font-size: 14px;
-
     -fx-font-weight: bold;
-
     -fx-text-fill: #d9534f; /* Soft red for errors */
-
     -fx-alignment: center;
-
     -fx-background-color: #f2dede; /* Slight background for emphasis */
-
     -fx-padding: 5px;
-
     -fx-border-radius: 5px;
-
     -fx-border-radius: 5px;
-
     -fx-max-height: 0; /* Hide completely when invisible */
-
 }
 
 #loginMessageLabel:visible, #registrationMessageLabel:visible {
-
     -fx-max-height: none; /* Restore height when visible */
-
 }
-
-
 
 /* Success Messages */
-
 .success-message {
-
     -fx-text-fill: #5cb85c; /* Green for success */
-
 }
 
-
-
 /* Adjusted Layout for Wider Buttons */
-
 .button-container .button {
-
     -fx-pref-width: 300px;
-
 }

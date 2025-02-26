@@ -1,145 +1,74 @@
 /* Chat Window Styles */
 
 .main-container {
-
     -fx-background-color: #f5f5f5;
-
     -fx-padding: 10;
-
     -fx-spacing: 10;
-
 }
-
-
 
 .chat-list-panel {
-
     -fx-background-color: #ffffff;
-
     -fx-border-color: #ddd;
-
     -fx-border-width: 0 1px 0 0;
-
 }
-
-
 
 .chat-list-header {
-
     -fx-font-size: 18px;
-
     -fx-font-weight: bold;
-
     -fx-padding: 10;
-
 }
-
-
 
 .chat-list {
-
     -fx-padding: 10;
-
 }
-
-
 
 .chat-main-panel {
-
     -fx-background-color: #ffffff;
-
     -fx-padding: 10;
-
 }
-
-
 
 .chat-display {
-
     -fx-background-color: #f9f9f9;
-
     -fx-padding: 10;
-
     -fx-fit-to-width: true;
-
 }
-
-
 
 .chat-messages .message-box {
-
     -fx-padding: 5;
-
 }
-
-
 
 .sent {
-
     -fx-background-color: #d1f5d3;
-
     -fx-padding: 10;
-
     -fx-border-radius: 10;
-
     -fx-background-radius: 10;
-
 }
-
-
 
 .received {
-
     -fx-background-color: #f1f0f0;
-
     -fx-padding: 10;
-
     -fx-border-radius: 10;
-
     -fx-background-radius: 10;
-
 }
-
-
 
 .message-input-panel {
-
     -fx-padding: 10;
-
     -fx-background-color: #f9f9f9;
-
     -fx-border-color: #ddd;
-
     -fx-border-width: 1px 0 0 0;
-
-    
-
-}
-
-
+ }
 
 .message-input {
-
     -fx-pref-height: 40;
-
     -fx-pref-width: 600;
-
 }
 
-
-
 .send-button {
-
     -fx-background-color: #4caf50;
-
     -fx-text-fill: white;
-
     -fx-font-size: 14px;
-
     -fx-padding: 0 20;
-
     -fx-pref-height: 40;
-
 }
 
 .back-button {

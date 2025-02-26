@@ -12,13 +12,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
-import static javafx.application.Application.launch;
-
 
 
 class HttpResponse {
@@ -73,7 +70,6 @@ public class FXMLDocumentController {
     @FXML
     private Label pageTitle;
 
-    // This method will handle the "Login" button click
     @FXML
     private void handleLoginButtonAction(ActionEvent event) {
 
@@ -81,34 +77,23 @@ public class FXMLDocumentController {
         String password = passwordField.getText();
         
         HttpResponse response = makeHttpRequest("http://localhost:5000/login", username, password);
-        
-        System.out.println(response.toString());
-        System.out.println("Status: " + response.getStatus());
-        System.out.println("Message: " + response.getMessage());
-        System.out.println("Hello from Under");        
 
         if (response.getStatus().equals("Success")) {
             try{
-                System.out.println("Login successful!");
                 loginMessageLabel.setText("Login successful!");
                 loginMessageLabel.setStyle("-fx-text-fill: green;");
                 loginMessageLabel.setVisible(true);
 
-                // Load the ChatWindow.fxml file (main app)
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/javafxapplication2/ChatWindow.fxml"));
                 Parent chatWindowRoot = loader.load();
                 
-                // Get the ChatWindowController
                 ChatWindowController chatWindowController = loader.getController();
 
-                // Pass the username to the ChatWindowController
                 chatWindowController.setUsername(username);
 
-                // Create a new scene for the chat window
                 Scene chatScene = new Scene(chatWindowRoot, 1000, 600);
                 chatScene.getStylesheets().add(getClass().getResource("/javafxapplication2/chatStyle.css").toExternalForm());
 
-                // Get the current stage and set the new scene
                 Stage stage = (Stage) usernameField.getScene().getWindow();
                 stage.setScene(chatScene);
                 stage.setTitle("ChatterBox");
@@ -117,14 +102,12 @@ public class FXMLDocumentController {
                 stage.setResizable(false);
                 
             } catch(Exception e) {
-                System.out.println("Hello from inside");
                 e.printStackTrace();
                 loginMessageLabel.setText("Failed to load the main application.");
                 loginMessageLabel.setStyle("-fx-text-fill: red;");
                 loginMessageLabel.setVisible(true);
             }
         } else {
-            System.out.println("Invalid username or password.");
             loginMessageLabel.setText("Invalid username or password.");
             loginMessageLabel.setStyle("-fx-text-fill: red;");
             loginMessageLabel.setVisible(true);
@@ -132,7 +115,6 @@ public class FXMLDocumentController {
     }
 
 
-    // This method will handle the "Register" button click (Show registration form)
     @FXML
     private void handleRegisterButtonAction(ActionEvent event) {
         loginForm.setVisible(false);  // Hide login form
@@ -146,7 +128,6 @@ public class FXMLDocumentController {
 
 
 
-    // This method will handle the "Back to Login" button click (Back to login form)
     @FXML
     private void handleBackToLoginButtonAction(ActionEvent event) {
         registrationForm.setVisible(false);  // Hide registration form
@@ -160,7 +141,6 @@ public class FXMLDocumentController {
 
 
 
-    // This method will handle the registration form submission
     @FXML
     private void handleRegisterSubmit(ActionEvent event) {
         String newUsername = newUsernameField.getText();
@@ -169,7 +149,6 @@ public class FXMLDocumentController {
 
         if (newPassword.isEmpty() || newUsername.isEmpty() || confirmPassword.isEmpty()){
             
-            System.out.println("Empty Inputs.");
             registrationMessageLabel.setText("Please fill in all fields.");
             registrationMessageLabel.setStyle("-fx-text-fill: red;");
             registrationMessageLabel.setVisible(true);
@@ -177,16 +156,9 @@ public class FXMLDocumentController {
         }else if (newPassword.equals(confirmPassword)) {
             
             // Send HTTP Request
-            HttpResponse response = makeHttpRequest("http://localhost:5000/register", newUsername, newPassword); 
-            
-            //For debuging
-            System.out.println("From Register: ");
-            System.out.println("Status: " + response.getStatus());
-            System.out.println("Message: " + response.getMessage());
+            HttpResponse response = makeHttpRequest("http://localhost:5000/register", newUsername, newPassword);
             
             if (response.getStatus().equals("Success")){
-                System.out.println("Registration successful for user: " + newUsername);
-                //registrationMessageLabel.setText("Registration successful for user: " + newUsername);
                 registrationMessageLabel.setText(response.getMessage());
                 registrationMessageLabel.setStyle("-fx-text-fill: green;");
             }else{
@@ -195,11 +167,8 @@ public class FXMLDocumentController {
             }
             
         }else{
-            
-            System.out.println("Passwords do not match.");
             registrationMessageLabel.setText("Passwords do not match.");
-            registrationMessageLabel.setStyle("-fx-text-fill: red;");
-            
+            registrationMessageLabel.setStyle("-fx-text-fill: red;"); 
         }
         registrationMessageLabel.setVisible(true);
     }
@@ -233,10 +202,6 @@ public class FXMLDocumentController {
                 response.append(scanner.nextLine());
             }
             scanner.close();
-            System.out.println(response);
-            //return responseCode == 200 ? response.toString() : "Error: " + response.toString();
-            System.out.println("From HTTP: " + response);
-
             return new HttpResponse(response.toString());
 
         } catch (Exception e) {
@@ -244,5 +209,4 @@ public class FXMLDocumentController {
             return new HttpResponse("Error:Unable to connect to the server");
         }
     }
-
 }  

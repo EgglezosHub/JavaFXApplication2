@@ -3,7 +3,6 @@
 <?import javafx.scene.layout.*?>
 
 <HBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javafxapplication2.ChatWindowController" spacing="10" styleClass="main-container">
-
     <!-- Chat List Panel -->
     <VBox prefWidth="250" styleClass="chat-list-panel">
         <Label text="Contacts" styleClass="chat-list-header"/>
@@ -11,10 +10,7 @@
         <HBox spacing="5" styleClass="add-contact-panel">
             <TextField fx:id="addContactField" promptText="Enter username" />
             <Button text="Add" onAction="#handleAddContact" styleClass="add-contact-button"/>
-        </HBox>
-        
-        
-        
+        </HBox>       
         <ListView fx:id="chatListView" styleClass="chat-list"/>
     </VBox>
 
@@ -22,15 +18,12 @@
     <VBox spacing="10" styleClass="chat-main-panel" HBox.hgrow="ALWAYS">
         <!-- Chat Header Section with Back Arrow -->
         <HBox spacing="10" styleClass="chat-header">
-            <Button fx:id="backButton" text="← Chat" onAction="#handleExitChat" styleClass="back-button"/>
-            
-        </HBox>
-    
+            <Button fx:id="backButton" text="← Chat" onAction="#handleExitChat" styleClass="back-button"/>  
+        </HBox>  
         <!-- Chat Messages Section -->
         <ScrollPane fx:id="chatScrollPane" fitToWidth="true" fitToHeight="true" styleClass="chat-display" VBox.vgrow="ALWAYS">
             <VBox fx:id="chatMessagesContainer" spacing="10" styleClass="chat-messages"/>
-        </ScrollPane>
-
+        </ScrollPane>ss
         <!-- Message Input Section -->
         <HBox spacing="10" styleClass="message-input-panel">
             <TextField fx:id="messageInputField" promptText="Type your message..." styleClass="message-input"/>
