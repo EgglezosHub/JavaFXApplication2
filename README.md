@@ -46,7 +46,9 @@ A simple Messaging App that I developed to practice my knowledge on:
 
 
 ## Instalation
-1. Download Java and Python
+### 1. Download Java and Python
+<br/>
+
 Navigate to the project folder in bash
   - Java: 
 ```bash
@@ -54,63 +56,70 @@ sudo apt update
 sudo apt install openjdk-21-jdk
 
 ```
-  -Python:
-  ```bash
+  - Python:
+```bash
 sudo apt update
 sudo apt install python3
 ```
-2. Download Flask and Flask-Cors
+### 2. Download Flask and Flask-Cors  
+
+Install pip
+
 ```bash
-   - sudo apt install python3-pip
+  sudo apt install python3-pip
 ```
+
+Create a virtual environment
+
 ```bash
-   - sudo apt install python3-venv
+   sudo apt install python3-venv
+   python3 -m venv env_test
+   source env_test/bin/activate
 ```
+Install Flask
 ```bash
-   - python3 -m venv env_test
+   pip install Flask
 ```
+Install Flask-Cors
 ```bash
-   - source env_test/bin/activate
+   pip install Flask-Cors
 ```
-```bash
-   - pip install Flask
-```
-```bash
-   - pip install Flask-Cors
-  ```
-3. Download JavaFX (Same version as Java)
+### 3. Download JavaFX (Same version as Java)
   - Download JavaFX from [GLUON](https://gluonhq.com/products/javafx/)
-  - Extract the zip and copy the path to the lib folder
-  - Write this command with Path_to_javafx-sdk-23.0.2/lib beeing the path to the lib folder of the JavaFX zip file
+  - Extract the zip
+  - Copy the path to the lib folder
+  - Write the following command with `Path_to_javafx-sdk-23.0.2/lib` beeing the path to the **lib** folder of the JavaFX extracted zip file
 ```bash
   export PATH_TO_FX=Path_to_javafx-sdk-23.0.2/lib
 ```
-4. Download GSON
+### 4. Download GSON
 ```bash
 wget https://repo1.maven.org/maven2/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar -P ~/Desktop/JavaFXApplication2/lib/
 ```
-5. Compile & Run
+- `~/Desktop/JavaFXApplication2/lib/` : location of cloned project
+
+### 5. Compile & Run
 ```bash
 cd src
 ```
 ### Compile
 ```bash
-javac --module-path /home/dimitris/Downloads/openjfx-23.0.2_linux-x64_bin-sdk/javafx-sdk-23.0.2/lib
+javac --module-path /home/user/Downloads/openjfx-23.0.2_linux-x64_bin-sdk/javafx-sdk-23.0.2/lib
 --add-modules javafx.controls,javafx.fxml,javafx.media
 -cp ~/Desktop/JavaFXApplication2/lib/gson-2.10.1.jar
 javafxapplication2/*.java
 ```
-- /home/dimitris/Downloads/openjfx-23.0.2_linux-x64_bin-sdk/javafx-sdk-23.0.2/lib:
+- `/home/user/Downloads/openjfx-23.0.2_linux-x64_bin-sdk/javafx-sdk-23.0.2/lib` :
   - Exact Path to the downloaded (and extracted) Javafx File
 
-- ~/Desktop/JavaFXApplication2/lib/gson-2.10.1.jar
+- `~/Desktop/JavaFXApplication2/lib/gson-2.10.1.jar` :
   - Exact Path to the downloaded gson jar
 
 ### Run
 ```bash
-java --module-path /home/dimitris/Downloads/openjfx-23.0.2_linux-x64_bin-sdk/javafx-sdk-23.0.2/lib \
+java --module-path /home/user/Downloads/openjfx-23.0.2_linux-x64_bin-sdk/javafx-sdk-23.0.2/lib \
 --add-modules javafx.controls,javafx.fxml,javafx.media \
--cp ".:/home/dimitris/Desktop/JavaFXApplication2/lib/gson-2.10.1.jar" \
+-cp ".:/home/user/Desktop/JavaFXApplication2/lib/gson-2.10.1.jar" \
 javafxapplication2.JavaFXApplication2
 
 ```
